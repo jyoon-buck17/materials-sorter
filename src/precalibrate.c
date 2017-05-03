@@ -4,7 +4,7 @@
 void precalibrate() {
   SensorValue[encod] = 0;
 
-  motor[mGate] = 0;
+  mgate = 0;
 
   takeBaseline();
 }
