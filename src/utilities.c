@@ -4,10 +4,6 @@
 #define delayLoop(T, C) clearTimer(3); while(time1[3] < T) C
 #define delayInd(T) delayLoop(T, {doIndicateTick();})
 
-int sqInt(int i) {
-  return abs(i);
-}
-
 int motorPositionFilter() {
   int posm90 = (((SensorValue[encod] % 90) + 90) % 90);
   if (posm90 < 45) {
@@ -21,7 +17,7 @@ struct Configuration {
   int GATE_SPEED;
   int GATE_LENGTH;
   int GATE_TOZERO_DELAY;
-  int GATE_TOZERO_SPEED_MULTIPLIER;
+  float GATE_TOZERO_SPEED_MULTIPLIER;
   int SERVO_PATH_LEFT;
   int SERVO_PATH_RIGHT;
   int MATERIAL_DISTINCTION_THRESHOLD;
@@ -34,11 +30,11 @@ void doConfig() {
   CONFIG.GATE_SPEED = 50;
   CONFIG.GATE_LENGTH = 300;
   CONFIG.GATE_TOZERO_DELAY = 500;
-  CONFIG.GATE_TOZERO_SPEED_MULTIPLIER = -2;
+  CONFIG.GATE_TOZERO_SPEED_MULTIPLIER = -2.0;
   CONFIG.SERVO_PATH_LEFT = -90;
   CONFIG.SERVO_PATH_RIGHT = 70;
   CONFIG.MATERIAL_DISTINCTION_THRESHOLD = 40;
-  CONFIG.SORT_DELAY = 400;
+  CONFIG.SORT_DELAY = 0;
 }
 
 #define mpos SensorValue[encod]

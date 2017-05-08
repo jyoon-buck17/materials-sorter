@@ -12,68 +12,100 @@
 #include "utilities.c"
 #include "indicators.c"
 #include "measure.c"
-#include "precalibrate.c"
 #include "gate.c"
 
 int material = -1;
 
+int sort(bool learn);
+
 task main() {
-  doConfig();
-  indMode[0] = 2;
-  while (!SensorValue[pushB]) doIndicateTick();
-  delay(100);
-  while (SensorValue[pushB]) doIndicateTick();
-  indMode[0] = 2;
-  indMode[0] = 0;
-  precalibrate();
-  indMode[0] = 0;
-  indMode[1] = 3;
   while (1) {
+    doConfig();
+    indMode[0] = 1;
     indMode[1] = 3;
-    indMode[0] = 1;
-    // while (!SensorValue[pushB]) doIndicateTick();
-    // delayInd(100);
-    // while (SensorValue[pushB]) doIndicateTick();
+    while (!SensorValue[pushB]) doIndicateTick();
+    delayInd(100);
+    while (SensorValue[pushB]) doIndicateTick();
+    indMode[0] = 2;
+    indMode[1] = 0;
 
-    delayInd(CONFIG.SORT_DELAY);
+    // precalibrate
 
-    indMode[1] = 4;
-    indMode[0] = 1;
+    SensorValue[encod] = 0;
+    mgate = 0;
 
-    material = getMaterial();
+    // learn four materials
 
-    if (material == -1) {
-      return;
+    for (int i = 0; i < 4; ++i) {
+      sort(true);
+      delayInd(CONFIG.SORT_DELAY);
     }
 
-    switch (material) {
-      case 0:
-        mgate = -CONFIG.GATE_SPEED;
-        msl = CONFIG.SERVO_PATH_LEFT;
-        break;
-      case 1:
-        mgate = -CONFIG.GATE_SPEED;
-        msl = CONFIG.SERVO_PATH_RIGHT;
-        break;
-      case 2:
-        mgate = CONFIG.GATE_SPEED;
-        msr = CONFIG.SERVO_PATH_LEFT;
-        break;
-      case 3:
-        mgate = CONFIG.GATE_SPEED;
-        msr = CONFIG.SERVO_PATH_RIGHT;
-        break;
-      default:
-        return;
+
+    indMode[0] = 0;
+    indMode[1] = 3;
+    while (!SensorValue[pushB]) doIndicateTick();
+    delayInd(100);
+    while (SensorValue[pushB]) doIndicateTick();
+    delayInd(100);
+
+    while (1) {
+      indMode[1] = 1;
+      indMode[0] = 4;
+      if (SensorValue[pushB]) break;
+
+      delayInd(CONFIG.SORT_DELAY);
+
+      indMode[1] = 0;
+      indMode[0] = 4;
+
+      sort(false);
     }
-    delayInd(CONFIG.GATE_LENGTH);
-    if (material > 1) {
-      // do a quick hop back the other way -
-      // this should help get the sensor in a better place each time.
-      mgate = -100;
-      delayInd(50);
-      mgate = 0;
-    }
-    goToZero();
+
+    indMode[1] = 1;
+    indMode[0] = 3;
+
+    while (!SensorValue[pushB]) doIndicateTick();
+    delayInd(100);
+    while (SensorValue[pushB]) doIndicateTick();
+    delayInd(100);
+    materialsLearned = 0;
   }
+}
+
+int sort(bool learn) {
+  material = getMaterial(learn);
+
+  switch (material) {
+    case 0:
+      mgate = -CONFIG.GATE_SPEED;
+      msl = CONFIG.SERVO_PATH_LEFT;
+      break;
+    case 1:
+      mgate = -CONFIG.GATE_SPEED;
+      msl = CONFIG.SERVO_PATH_RIGHT;
+      break;
+    case 2:
+      mgate = CONFIG.GATE_SPEED;
+      msr = CONFIG.SERVO_PATH_LEFT;
+      break;
+    case 3:
+      mgate = CONFIG.GATE_SPEED;
+      msr = CONFIG.SERVO_PATH_RIGHT;
+      break;
+    default:
+      return -1;
+  }
+
+  delayInd(CONFIG.GATE_LENGTH);
+  if (material > 1) {
+    // do a quick hop back the other way -
+    // this should help get the sensor in a better place each time.
+    mgate = -100;
+    delayInd(50);
+    mgate = 0;
+  }
+  goToZero();
+
+  return material;
 }
