@@ -19,35 +19,36 @@ int material = -1;
 int sort(bool learn);
 
 task main() {
+
+  doConfig();
+  indMode[0] = 1;
+  indMode[1] = 3;
+  while (!SensorValue[pushB]) doIndicateTick();
+  delayInd(100);
+  while (SensorValue[pushB]) doIndicateTick();
+  indMode[0] = 2;
+  indMode[1] = 0;
+
+  // precalibrate
+
+  SensorValue[encod] = 0;
+  mgate = 0;
+
+  // learn four materials
+
+  for (int i = 0; i < 4; ++i) {
+    sort(true);
+    delayInd(CONFIG.SORT_DELAY);
+  }
+
   while (1) {
-    doConfig();
-    indMode[0] = 1;
-    indMode[1] = 3;
-    while (!SensorValue[pushB]) doIndicateTick();
-    delayInd(100);
-    while (SensorValue[pushB]) doIndicateTick();
-    indMode[0] = 2;
-    indMode[1] = 0;
-
-    // precalibrate
-
-    SensorValue[encod] = 0;
-    mgate = 0;
-
-    // learn four materials
-
-    for (int i = 0; i < 4; ++i) {
-      sort(true);
-      delayInd(CONFIG.SORT_DELAY);
-    }
-
 
     indMode[0] = 0;
-    indMode[1] = 3;
-    while (!SensorValue[pushB]) doIndicateTick();
-    delayInd(100);
-    while (SensorValue[pushB]) doIndicateTick();
-    delayInd(100);
+	  indMode[1] = 3;
+	  while (!SensorValue[pushB]) doIndicateTick();
+	  delayInd(100);
+	  while (SensorValue[pushB]) doIndicateTick();
+	  delayInd(100);
 
     while (1) {
       indMode[1] = 1;
@@ -69,7 +70,6 @@ task main() {
     delayInd(100);
     while (SensorValue[pushB]) doIndicateTick();
     delayInd(100);
-    materialsLearned = 0;
   }
 }
 
